@@ -45,7 +45,12 @@
 //#define LOG_VERBOSE
 #include "log.h"
 
-extern string getTlRegistryPath();
+extern string getRegistryPath();
+
+static inline string getStoragePath()
+{
+    return getRegistryPath() + "/TbStorage";
+}
 
 extern pthread_mutex_t         syncMutex;
 extern pthread_cond_t          syncCondition;
@@ -74,15 +79,23 @@ void FSD::run(
 {
 	struct stat st = {0};
 	mcResult_t ret;
-	string storage = getTlRegistryPath()+"/TbStorage";
+	string regPath = getRegistryPath();
+	string storage = getStoragePath();
 	const char* tbstpath = storage.c_str();
 
-	/*Create Tbase storage directory*/
+	/* Ensure parent registry directory exists (/data/app/mcRegistry) */
+	if (stat(regPath.c_str(), &st) == -1) {
+		LOG_I("%s: Creating registry Folder %s\n", TAG_LOG, regPath.c_str());
+		if (mkdir(regPath.c_str(), 0775) == -1 && errno != EEXIST) {
+			LOG_E("%s: failed creating registry folder: %s\n", TAG_LOG, strerror(errno));
+		}
+	}
+
+	/* Create Tbase storage directory (/data/app/mcRegistry/TbStorage) */
 	if (stat(tbstpath, &st) == -1) {
-		LOG_I("%s: Creating <t-base storage Folder %s\n",TAG_LOG,tbstpath);
-		if(mkdir(tbstpath, 0600)==-1)
-		{
-			LOG_E("%s: failed creating storage folder\n",TAG_LOG);
+		LOG_I("%s: Creating <t-base storage Folder %s\n", TAG_LOG, tbstpath);
+		if (mkdir(tbstpath, 0700) == -1 && errno != EEXIST) {
+			LOG_E("%s: failed creating storage folder: %s\n", TAG_LOG, strerror(errno));
 		}
 	}
 	do{
@@ -326,7 +339,7 @@ mcResult_t FSD::FSD_LookFile(void){
 	FILE * pFile=NULL;
 	STH_FSD_message_t* sth_request=NULL;
 	uint32_t res=0;
-	string storage = getTlRegistryPath()+"/TbStorage";
+	string storage = getStoragePath();
 	const char* tbstpath = storage.c_str();
 	char tadirname[TEE_UUID_STRING_SIZE+1];
 	char filename[2*FILENAMESIZE+1];
@@ -373,7 +386,7 @@ mcResult_t FSD::FSD_ReadFile(void){
 	FILE * pFile=NULL;
 	STH_FSD_message_t* sth_request=NULL;
 	uint32_t res=0;
-	string storage = getTlRegistryPath()+"/TbStorage";
+	string storage = getStoragePath();
 	const char* tbstpath = storage.c_str();
 	char tadirname[TEE_UUID_STRING_SIZE+1];
 	char filename[2*FILENAMESIZE+1];
@@ -422,7 +435,7 @@ mcResult_t FSD::FSD_WriteFile(void){
 	STH_FSD_message_t* sth_request=NULL;
 	uint32_t res=0;
 	int stat=0;
-	string storage = getTlRegistryPath()+"/TbStorage";
+	string storage = getStoragePath();
 	const char* tbstpath = storage.c_str();
 	char tadirname[TEE_UUID_STRING_SIZE+1];
 	char filename[2*FILENAMESIZE+1];
@@ -517,7 +530,7 @@ mcResult_t FSD::FSD_DeleteFile(void){
 	FILE * pFile=NULL;
 	uint32_t res=0;
 	STH_FSD_message_t* sth_request=NULL;
-	string storage = getTlRegistryPath()+"/TbStorage";
+	string storage = getStoragePath();
 	const char* tbstpath = storage.c_str();
 	char tadirname[TEE_UUID_STRING_SIZE+1];
 	char filename[2*FILENAMESIZE+1];

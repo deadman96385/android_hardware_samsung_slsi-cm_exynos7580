@@ -116,7 +116,7 @@ static bool doesDirExist(const char *path)
 }
 
 //------------------------------------------------------------------------------
-static string getRegistryPath()
+string getRegistryPath()
 {
     string registryPath;
 

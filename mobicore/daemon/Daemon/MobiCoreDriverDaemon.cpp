@@ -41,6 +41,8 @@
 #include <fcntl.h>
 #include <stdio.h>
 
+#include <cutils/properties.h>
+
 #include "mcVersion.h"
 #include "mcVersionHelper.h"
 #include "mc_linux.h"
@@ -198,6 +200,11 @@ void MobiCoreDriverDaemon::run(
     for (i = 0; i < MAX_SERVERS; i++) {
         servers[i]->start(i ? "McDaemon.Server" : "NetlinkServer");
     }
+
+    // gvwifi stock parity: the prebuilt daemon signals readiness via
+    // property_set("sys.mobicoredaemon.enable", "true"), which triggers
+    // init.samsungexynos7580.rc's on-property action (cs_service, iccc_ready).
+    property_set("sys.mobicoredaemon.enable", "true");
 
     // Create the <t-base File Storage Daemon
     FSD *FileStorageDaemon = new FSD();

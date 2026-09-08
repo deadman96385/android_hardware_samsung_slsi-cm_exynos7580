@@ -51,11 +51,14 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := mcDriverDaemon
 LOCAL_MODULE_TAGS := debug eng optional
+# gvwifi runs a 32-bit userspace for this stack (/system/bin + /system/lib
+# prebuilts are ARM32); default would build 64-bit only. Match stock.
+LOCAL_MULTILIB := 32
 LOCAL_CFLAGS += -include buildTag.h
 LOCAL_CFLAGS += -DLOG_TAG=\"McDaemon\"
 LOCAL_CFLAGS += -DTBASE_API_LEVEL=3
 LOCAL_C_INCLUDES += $(GLOBAL_INCLUDES)
-LOCAL_SHARED_LIBRARIES += $(GLOBAL_LIBRARIES) libMcClient liblog
+LOCAL_SHARED_LIBRARIES += $(GLOBAL_LIBRARIES) libMcClient liblog libcutils
 
 include $(LOCAL_PATH)/Daemon/Android.mk
 
