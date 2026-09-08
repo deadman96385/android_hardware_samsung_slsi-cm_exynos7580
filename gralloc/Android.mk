@@ -44,4 +44,13 @@ endif
 
 LOCAL_MODULE := gralloc.exynos5
 
+# gralloc is a HAL module dlopen()ed by both 64-bit processes (surfaceflinger,
+# the 64-bit mapper) and the remaining 32-bit Samsung blobs (OMX, camera,
+# hwcomposer), so it must exist for both ABIs.
+#
+# This is safe because private_handle_t in ../include/gralloc_priv.h unions
+# every pointer with a uint64_t, so the handle layout is byte-identical for
+# 32-bit and 64-bit builds.
+LOCAL_MULTILIB := both
+
 include $(BUILD_SHARED_LIBRARY)
