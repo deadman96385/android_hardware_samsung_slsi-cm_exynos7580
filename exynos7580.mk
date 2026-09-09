@@ -18,6 +18,14 @@
 PRODUCT_PACKAGES += \
 	libOMX.Exynos.VP8.Encoder
 
+# Camera (universal7580 HAL built from 75xx sources; replaces vendor blobs)
+# Set BOARD_USES_VENDOR_CAMERA_BLOBS := true in a BoardConfig to keep blobs.
+ifneq ($(BOARD_USES_VENDOR_CAMERA_BLOBS), true)
+PRODUCT_PACKAGES += \
+	camera.universal7580 \
+	libexynoscamera
+endif
+
 # Keymaster
 ifeq ($(BOARD_USES_TRUST_KEYMASTER), true)
 PRODUCT_PACKAGES += \
