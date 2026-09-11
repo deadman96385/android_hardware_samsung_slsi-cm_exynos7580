@@ -1,0 +1,19 @@
+v4l2-kernel/ holds userspace V4L2 ABI headers copied from the generated
+kernel headers:
+
+  out/target/product/gvwifi/obj/KERNEL_OBJ/usr/include/linux/{videodev2.h,\
+  videodev2_exynos_camera.h,videodev2_exynos_media.h}
+
+Source: kernel/samsung/exynos7580-common, include/uapi/linux/.
+
+Why copies instead of -I <KERNEL_OBJ>/usr/include/linux:
+Samsung's camera sources #include <videodev2.h> (bare name). Adding
+usr/include/linux to the include path would shadow bioniclibc headers
+(limits.h, time.h, types.h, ... lives there too) and break the build.
+The copies expose only the three V4L2 headers; their internal
+<linux/...> includes still resolve via KERNEL_OBJ/usr/include.
+
+NOTE: 75xx/ ships its own tuned videodev2_exynos_camera.h and its -I
+entry precedes this directory, so the 75xx copy wins for that header.
+Regenerate these copies with: make INSTALLED_KERNEL_HEADERS, then copy
+the three files again.
